@@ -1,71 +1,105 @@
-#include <iostream>
-#include <fstream>
-#include <memory>
+#ifndef MEDICIONES_HPP
+#define MEDICIONES_HPP
+
+#include <iostream> // Para cout, fixed, scientific
+#include <fstream>  // Para ofstream, ifstream
+#include <string>   // Para string
+#include <memory>   // Para unique_ptr
+#include <iomanip>  // Para setprecision
+
 using namespace std;
 
+
+// 1. Interfaz IMediciones 
 class IMediciones {
-    public:
-        virtual void serializar(ofstream& out) const = 0;
-        virtual void deserializar(ifstream& in) = 0;
+public:
+    // Métodos virtuales puros para serialización y deserialización
+    virtual void serializar(ofstream& out) const = 0;
+    virtual void deserializar(ifstream& in) = 0;
 
-        virtual ~IMediciones() = default;
+    // Destructor virtual para asegurar la correcta liberación de memoria
+    virtual void imprimir() const = 0;
+    virtual ~IMediciones() = default;
 };
 
+// 2. Clase Abstracta MedicionBase
 class MedicionBase : public IMediciones {
-    protected:
-        unique_ptr<double> tiempoMedicion;
-    public:
-        MedicionBase(double tiempo)
-            : tiempoMedicion(make_unique<double>(tiempo)) {}
+protected:
+    unique_ptr<double> tiempoMedicion;
 
-        double getTiempo() const {}
-        virtual void imprimir() const = 0;
-        void serializar(ofstream& out) const override;
-        void deserializar(ifstream& in) override;
+public:
+    // Constructor de MedicionBase
+    explicit MedicionBase(double t); 
+    
+    // Destructor virtual
+    virtual ~MedicionBase() = default;
 
+    double getTiempo() const;
+
+    // Método virtual puro para imprimir
+    virtual void imprimir() const = 0;
 };
 
-
-class Posicion : public MedicionBase {
-    public: 
-        double x, y, z;
-
-        Posicion(double tiempo, double x, double y, double z)
-            : MedicionBase(tiempo), x(x), y(y), z(z) {}
-        
-        void serializar(ofstream& out) const override;
-        void deserializar(ifstream& in) override;
-        
-        ~Posicion() override = default;
-
-};
-
+// 3. Clase Presion
 class Presion : public MedicionBase {
-    public:
-    double pe, pd;
+public:
+    float presionEstatica, presionDinamica;
 
-    Presion(double tiempo, double pe, double pd)
-        : MedicionBase(tiempo), pe(pe), pd(pd) {}
-    
-    void serializar(ofstream& out) const override;
-    void deserializar(ifstream& in) override;
+    // Constructor de Presion. Ahora toma time_t para el tiempo.
+    Presion(float p_estatica, float p_dinamica, double t);
 
-    ~Presion() override = default;
-    
+    // Constructor de copia "personalizado" para cumplir el requisito 'c'
+    Presion(const Presion& copia);
+
+    // Sobreescribe el método imprimir() para mostrar la fecha y hora
+    void imprimir() const override;
+
+    // Implementación de serializar para Presion
+    void serializar(ofstream& archivo) const override;
+
+    // Implementación de deserializar para Presion
+    void deserializar(ifstream& archivo) override;
 };
 
+// 4. Clase Posicion
+class Posicion : public MedicionBase {
+public:
+    float latitud, longitud, altitud;
+
+    // Constructor de Posicion. Ahora toma time_t para el tiempo.
+    Posicion(float lat, float lon, float alt, double t);
+
+    // Constructor de copia "personalizado" para cumplir el requisito 'c'
+    Posicion(const Posicion& copia);
+
+    // Sobreescribe el método imprimir() para mostrar la fecha y hora
+    void imprimir() const override;
+
+    // Implementación de serializar para Posicion
+    void serializar(ofstream& archivo) const override;
+
+    // Implementación de deserializar para Posicion
+    void deserializar(ifstream& archivo) override;
+};
+
+// 5. Clase SaveFlightData
 class SaveFlightData {
-    public:
+public:
+    Posicion posicion; // Composición
+    Presion presion;   // Composición
 
-    Posicion posicion;
-    Presion presion;
+    // Constructor de SaveFlightData.
+    // Recibe referencias constantes y usa los constructores de copia definidos en Posicion y Presion.
+    SaveFlightData(const Posicion& p, const Presion& q);
 
-    SaveFlightData(const Posicion& pos, const Presion& pres)
-        : posicion(pos), presion(pres) {}
+    // Método para serializar ambas mediciones a un archivo.
+    void serializar(const string& filename) const;
 
-    void serializar(ofstream& out) const; 
-    void deserializar(ifstream& in); 
+    // Método para deserializar ambas mediciones desde un archivo.
+    void deserializar(const string& filename);
 
-    void imprimir() const {}
-    
+    // Método para imprimir ambas mediciones
+    void imprimir() const;
 };
+
+#endif 
