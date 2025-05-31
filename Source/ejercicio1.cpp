@@ -106,7 +106,7 @@ void SaveFlightData::serializar(const string& filename) const {
     posicion.serializar(archivo);
     presion.serializar(archivo);
     archivo.close();
-    cout << "Datos guardados en '" << filename << endl;
+    cout << BOLD << "Datos guardados en '" << filename << RESET << endl;
 }
 
 void SaveFlightData::deserializar(const string& filename) {
@@ -118,7 +118,7 @@ void SaveFlightData::deserializar(const string& filename) {
     posicion.deserializar(archivo);
     presion.deserializar(archivo);
     archivo.close();
-    cout << "Datos leidos desde '" << filename << endl;
+    cout << BOLD << "Datos leidos desde '" << filename << RESET << endl;
 }
 
 void SaveFlightData::imprimir() const {

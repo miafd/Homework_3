@@ -7,6 +7,9 @@
 #include <memory>   // Para unique_ptr
 #include <iomanip>  // Para setprecision
 
+#define BOLD "\033[1m"
+#define RESET "\033[0m"
+
 using namespace std;
 
 
@@ -48,7 +51,7 @@ public:
     // Constructor de Presion. Ahora toma time_t para el tiempo.
     Presion(float p_estatica, float p_dinamica, double t);
 
-    // Constructor de copia "personalizado" para cumplir el requisito 'c'
+    // Constructor de copia para cumplir el requisito 'c'
     Presion(const Presion& copia);
 
     // Sobreescribe el método imprimir() para mostrar la fecha y hora
@@ -69,7 +72,7 @@ public:
     // Constructor de Posicion. Ahora toma time_t para el tiempo.
     Posicion(float lat, float lon, float alt, double t);
 
-    // Constructor de copia "personalizado" para cumplir el requisito 'c'
+    // Constructor de copia para cumplir el requisito 'c'
     Posicion(const Posicion& copia);
 
     // Sobreescribe el método imprimir() para mostrar la fecha y hora
